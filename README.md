@@ -1,2 +1,3 @@
 # AI-mini-projects
-A collection of AI notebooks from Hands on AI 2 course
+A collection of AI notebooks courses I took in Bachelor
+
