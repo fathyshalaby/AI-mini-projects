@@ -1,0 +1,840 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "kernelspec": {
+      "display_name": "Python 3",
+      "language": "python",
+      "name": "python3"
+    },
+    "language_info": {
+      "codemirror_mode": {
+        "name": "ipython",
+        "version": 3
+      },
+      "file_extension": ".py",
+      "mimetype": "text/x-python",
+      "name": "python",
+      "nbconvert_exporter": "python",
+      "pygments_lexer": "ipython3",
+      "version": "3.7.5"
+    },
+    "colab": {
+      "name": "U9_Assignment.ipynb",
+      "provenance": []
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "Nj5ub2MlgwGB",
+        "colab_type": "text"
+      },
+      "source": [
+        "| <p style=\"text-align: left;\">Name</p>               | Matr.Nr. | <p style=\"text-align: right;\">Date</p> |\n",
+        "| --------------------------------------------------- | -------- | ------------------------------------- |\n",
+        "| <p style=\"text-align: left\">Fathy Shalaby</p> | 11701175 | 10.06.2020                            |"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "jH6TzipJgwGE",
+        "colab_type": "text"
+      },
+      "source": [
+        "<h1 style=\"color:rgb(0,120,170)\">Hands-on AI II</h1>\n",
+        "<h2 style=\"color:rgb(0,120,170)\">Unit 9 (Assignment) -- Introduction to Reinforcement Learning -- Part II </h2>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "wrQCX_MpgwGG",
+        "colab_type": "text"
+      },
+      "source": [
+        "<b>Authors</b>: Brandstetter, Schäfl <br>\n",
+        "<b>Date</b>: 08-06-2020\n",
+        "\n",
+        "This file is part of the \"Hands-on AI II\" lecture material. The following copyright statement applies \n",
+        "to all code within this file.\n",
+        "\n",
+        "<b>Copyright statement</b>: <br>\n",
+        "This  material,  no  matter  whether  in  printed  or  electronic  form,  may  be  used  for personal  and non-commercial educational use only.  Any reproduction of this manuscript, no matter whether as a whole or in parts, no matter whether in printed or in electronic form, requires explicit prior acceptance of the authors."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "OJfLk8LtgwGI",
+        "colab_type": "text"
+      },
+      "source": [
+        "<h2>Exercise 0</h2>\n",
+        "\n",
+        "- Import the same modules as discussed in the lecture notebook.\n",
+        "- Check if your model versions are correct."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "9N3LqwjniFyT",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 52
+        },
+        "outputId": "b8a9af10-75b4-4aca-8f8c-80fc41aa55ba"
+      },
+      "source": [
+        "from google.colab import drive\n",
+        "drive.mount('/gdrive')\n",
+        "%cd /gdrive"
+      ],
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "Drive already mounted at /gdrive; to attempt to forcibly remount, call drive.mount(\"/gdrive\", force_remount=True).\n",
+            "/gdrive\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "vf_s8eHJiGcD",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 34
+        },
+        "outputId": "799ef4c7-ff70-4f7c-d236-8677f64e5826"
+      },
+      "source": [
+        "%cd /gdrive/My Drive/as9"
+      ],
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "/gdrive/My Drive/as9\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "NcoMAhkrgwGJ",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "source": [
+        "# your imports go here\n",
+        "import u9_utils as u9\n",
+        "import matplotlib.pyplot as plt\n",
+        "import pandas as pd\n",
+        "import seaborn as sns\n",
+        "import numpy as np\n",
+        "import gym\n",
+        "\n",
+        "from typing import Any, Dict, Tuple\n",
+        "from gym.envs.toy_text import FrozenLakeEnv\n",
+        "\n",
+        "# Set Seaborn plotting style.\n",
+        "sns.set()"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "IHYkmCcKgwGY",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 104
+        },
+        "outputId": "a3612c8a-acb5-4762-b11e-602fd381c999"
+      },
+      "source": [
+        "# your modul version check goes here\n",
+        "u9.check_module_versions()"
+      ],
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "Installed Python version: 3.6 (✗)\n",
+            "Installed matplotlib version: 3.2.1 (✓)\n",
+            "Installed Pandas version: 1.0.4 (✓)\n",
+            "Installed Seaborn version: 0.10.1 (✓)\n",
+            "Installed OpenAI Gym version: 0.17.2 (✓)\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "cWVLQUN-gwGe",
+        "colab_type": "text"
+      },
+      "source": [
+        "All exercises in this assignment are referring to the <i>FrozenLake-v0</i> environment of <a href=\"https://gym.openai.com\"><i>OpenAI Gym</i></a>. This environment is descibed according to its official <a href=\"https://gym.openai.com/envs/FrozenLake-v0/\">OpenAI Gym website</a> as follows:<br>\n",
+        "<cite>Winter is here. You and your friends were tossing around a frisbee at the park when you made a wild throw that left the frisbee out in the middle of the lake. The water is mostly frozen, but there are a few holes where the ice has melted. If you step into one of those holes, you'll fall into the freezing water. At this time, there's an international frisbee shortage, so it's absolutely imperative that you navigate across the lake and retrieve the disc. However, the ice is slippery, so you won't always move in the direction you intend.</cite>\n",
+        "\n",
+        "\n",
+        "There are <i>four</i> types of surfaces described in this environment:\n",
+        "<ul>\n",
+        "    <li><code>S</code> $\\rightarrow$ starting point (<span style=\"color:rgb(0,255,0)\"><i>safe</i></span>)</li>\n",
+        "    <li><code>F</code> $\\rightarrow$ frozen surface (<span style=\"color:rgb(0,255,0)\"><i>safe</i></span>)</li>\n",
+        "    <li><code>H</code> $\\rightarrow$ hole (<span style=\"color:rgb(255,0,0)\"><i>fall to your doom</i></span>)</li>\n",
+        "    <li><code>G</code> $\\rightarrow$ goal (<span style=\"color:rgb(255,0,255)\"><i>frisbee location</i></span>)</li>\n",
+        "</ul>\n",
+        "\n",
+        "\n",
+        "If not already done, more information on how to <i>install</i> and <i>import</i> the <code>gym</code> module is available in the lecture's notebook."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "gBr19rJegwGf",
+        "colab_type": "text"
+      },
+      "source": [
+        "<h3 style=\"color:rgb(0,120,170)\">States and actions</h3>\n",
+        "Experiment with the <i>FrozenLake-v0</i> environment as discussed during the lecture and explained in the accompanying notebook."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "h4ZqIx9IgwGg",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "source": [
+        "lake_environment = FrozenLakeEnv()\n",
+        "u9.set_seed(environment=lake_environment, seed=42)"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "EZXsp5LpgwGk",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 138
+        },
+        "outputId": "8f71c5e1-05d2-4120-b75e-a325d135b004"
+      },
+      "source": [
+        "lake_environment.render(mode=r'human')\n",
+        "current_state_id = lake_environment.s\n",
+        "print(f'\\nCurrent state ID: {current_state_id}')"
+      ],
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "\n",
+            "\u001b[41mS\u001b[0mFFF\n",
+            "FHFH\n",
+            "FFFH\n",
+            "HFFG\n",
+            "\n",
+            "Current state ID: 0\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "sGIzM8zWgwGn",
+        "colab_type": "text"
+      },
+      "source": [
+        "The current position of the <i>disc retrieving</i> entity is displayed as a filled <span style=\"color:rgb(255,0,0)\"><i>red</i></span> rectangle.\n",
+        "\n",
+        "As we want to tackle this problem using our renowned <i>random search</i> approach, we have to analyse its applicability beforehand. Hence, the number of possible <i>actions</i> and <i>states</i> is of utter importance, as we don't want to get lost in the depth of combinatorial explosion.\n",
+        "<ul>\n",
+        "    <li>Query the amount of <i>actions</i> using the appropriate peoperty of the lake environment.</li>\n",
+        "    <li>Query the amount of <i>states</i> using the appropriate property of the lake environment.</li>\n",
+        "</ul>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "1aLzhboOgwGn",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 34
+        },
+        "outputId": "126bb0c1-4988-4d8b-8395-87e1eeeb08a8"
+      },
+      "source": [
+        "num_actions = lake_environment.action_space.n\n",
+        "num_states = lake_environment.observation_space.n\n",
+        "print(f'The FrozenLake-v0 environment comprises <{num_actions}> actions and <{num_states}> states.')"
+      ],
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "The FrozenLake-v0 environment comprises <4> actions and <16> states.\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "Sk_bBTtogwGq",
+        "colab_type": "text"
+      },
+      "source": [
+        "<h2>Exercise 1</h2>\n",
+        "\n",
+        "- Create a q_table for the frozen lake environment.\n",
+        "- Apply $Q$-learning as it was done in the lecture to solve the environment.\n",
+        "- Test the learned policy and animate one (or more) exemplary episode.\n",
+        "- What do you observe? Does the agent learn anything useful? Discuss if something strange happens. Hint: print the q_table during training to better understand what is going on during learning."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "E5UIM9WLgwGq",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 294
+        },
+        "outputId": "13785014-1415-4e54-9f76-3f82bbcff490"
+      },
+      "source": [
+        "# q_table\n",
+        "q_table = np.zeros([lake_environment.observation_space.n, lake_environment.action_space.n])\n",
+        "q_table"
+      ],
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "array([[0., 0., 0., 0.],\n",
+              "       [0., 0., 0., 0.],\n",
+              "       [0., 0., 0., 0.],\n",
+              "       [0., 0., 0., 0.],\n",
+              "       [0., 0., 0., 0.],\n",
+              "       [0., 0., 0., 0.],\n",
+              "       [0., 0., 0., 0.],\n",
+              "       [0., 0., 0., 0.],\n",
+              "       [0., 0., 0., 0.],\n",
+              "       [0., 0., 0., 0.],\n",
+              "       [0., 0., 0., 0.],\n",
+              "       [0., 0., 0., 0.],\n",
+              "       [0., 0., 0., 0.],\n",
+              "       [0., 0., 0., 0.],\n",
+              "       [0., 0., 0., 0.],\n",
+              "       [0., 0., 0., 0.]])"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 31
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "EMLHx0W2gwGs",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 34
+        },
+        "outputId": "771ff4c7-4e10-428a-a240-5775af218295"
+      },
+      "source": [
+        "# shape of q_table\n",
+        "q_table.shape"
+      ],
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(16, 4)"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 32
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "EBQi8FwBgwGu",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "source": [
+        "def apply_q_learning(environment: lake_environment, alpha: float = 0.1):\n",
+        "    \"\"\"\n",
+        "    Solve lake_environment by applying Q learning.\n",
+        "    \"\"\"\n",
+        "    for i in range(1, 10001):\n",
+        "        # your code goes here\n",
+        "        state = environment.reset()\n",
+        "        done = False\n",
+        "    \n",
+        "        while not done:\n",
+        "            action = np.argmax(q_table[state]) \n",
+        "            next_state, reward, done, info = environment.step(action) \n",
+        "            old_value = q_table[state, action]\n",
+        "            next_max = np.max(q_table[next_state])\n",
+        "            new_value = (1 - alpha) * old_value + alpha * (reward + next_max)\n",
+        "            q_table[state, action] = new_value\n",
+        "\n",
+        "            state = next_state\n",
+        "        \n",
+        "        if i % 100 == 0:\n",
+        "            clear_output(wait=True)\n",
+        "            print(f\"Episode: {i}\")\n",
+        "            print(q_table)   \n",
+        "\n",
+        "    print(\"Training finished.\\n\")"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "hWe-3pfSgwGw",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 381
+        },
+        "outputId": "4d055808-0278-4748-e994-404625467ba7"
+      },
+      "source": [
+        "%%time\n",
+        "from IPython.display import clear_output\n",
+        "# train your agent\n",
+        "alpha = 0.1\n",
+        "apply_q_learning(lake_environment, alpha)"
+      ],
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "Episode: 10000\n",
+            "[[0. 0. 0. 0.]\n",
+            " [0. 0. 0. 0.]\n",
+            " [0. 0. 0. 0.]\n",
+            " [0. 0. 0. 0.]\n",
+            " [0. 0. 0. 0.]\n",
+            " [0. 0. 0. 0.]\n",
+            " [0. 0. 0. 0.]\n",
+            " [0. 0. 0. 0.]\n",
+            " [0. 0. 0. 0.]\n",
+            " [0. 0. 0. 0.]\n",
+            " [0. 0. 0. 0.]\n",
+            " [0. 0. 0. 0.]\n",
+            " [0. 0. 0. 0.]\n",
+            " [0. 0. 0. 0.]\n",
+            " [0. 0. 0. 0.]\n",
+            " [0. 0. 0. 0.]]\n",
+            "Training finished.\n",
+            "\n",
+            "CPU times: user 5.12 s, sys: 566 ms, total: 5.69 s\n",
+            "Wall time: 5.26 s\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "HFd4FCMRgwGx",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 69
+        },
+        "outputId": "ec1c3e4b-5a87-43c5-beac-bc11f841fd6f"
+      },
+      "source": [
+        "total_epochs, total_dives = 0, 0\n",
+        "episodes = 10000\n",
+        "\n",
+        "captured_frames = [[] for _ in range(episodes)]\n",
+        "\n",
+        "for episode in range(episodes):\n",
+        "    # test your method\n",
+        "    state = lake_environment.reset()\n",
+        "    epochs, penalties, reward = 0, 0, 0\n",
+        "    \n",
+        "    done = False\n",
+        "    \n",
+        "    while not done:\n",
+        "        action = np.argmax(q_table[state])\n",
+        "        state, reward, done, info = lake_environment.step(action)\n",
+        "\n",
+        "        if reward == -10:\n",
+        "            penalties += 1\n",
+        "\n",
+        "        epochs += 1\n",
+        "        \n",
+        "        # Save rendering o f current state.\n",
+        "        captured_frames[episode].append({\n",
+        "            r'frame': lake_environment.render(mode=r'ansi'),\n",
+        "            r'state': state,\n",
+        "            r'action': action,\n",
+        "            r'reward': reward\n",
+        "        })\n",
+        "\n",
+        "    total_dives += penalties\n",
+        "    total_epochs += epochs\n",
+        "\n",
+        "\n",
+        "print(f\"Results after {episodes} episodes:\")\n",
+        "print(f\"Average timesteps per episode: {total_epochs / episodes}\")\n",
+        "print(f\"Average dives per episode: {total_dives / episodes}\")"
+      ],
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "Results after 10000 episodes:\n",
+            "Average timesteps per episode: 17.77\n",
+            "Average dives per episode: 0.0\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "6Hv-nDgrgwG0",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 190
+        },
+        "outputId": "b3177d41-fdd3-44d7-f689-ef4d90699c78"
+      },
+      "source": [
+        "# animate some of the results\n",
+        "u9.animate_environment_search(frames=captured_frames[12], verbose=True, delay=0.4)"
+      ],
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "  (Left)\n",
+            "SFFF\n",
+            "FHFH\n",
+            "FFFH\n",
+            "\u001b[41mH\u001b[0mFFG\n",
+            "\n",
+            "Step No.: 5\n",
+            "State ID: 12\n",
+            "Action ID: 0\n",
+            "Reward: 0.0\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "te4FkXrogwG1",
+        "colab_type": "text"
+      },
+      "source": [
+        "<h2>Exercise 2</h2>\n",
+        "Very likely your training in Exercise 1 was not successful. Try to add exploration to your algorithm (you might have to write a new function):\n",
+        "<li><code>I</code> $\\rightarrow$ Throw a random uniform number between 0 and 1. \n",
+        "<li><code>II</code> $\\rightarrow$ If the number is smaller than 0.1, sample a random action.\n",
+        "<li><code>III</code> $\\rightarrow$ Choose your action as usual.   \n",
+        "    \n",
+        "- Apply the modified $Q$-learning again to solve the environment.\n",
+        "- Test the learned policy and animate one (or more) exemplary episode.\n",
+        "- What do you observe? Does the agent learn now?."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "aq225iIOgwG3",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 294
+        },
+        "outputId": "a3fd8881-7d20-4946-c569-1c183e9efd9a"
+      },
+      "source": [
+        "# q_table\n",
+        "q_table = np.zeros([lake_environment.observation_space.n, lake_environment.action_space.n])\n",
+        "q_table"
+      ],
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "array([[0., 0., 0., 0.],\n",
+              "       [0., 0., 0., 0.],\n",
+              "       [0., 0., 0., 0.],\n",
+              "       [0., 0., 0., 0.],\n",
+              "       [0., 0., 0., 0.],\n",
+              "       [0., 0., 0., 0.],\n",
+              "       [0., 0., 0., 0.],\n",
+              "       [0., 0., 0., 0.],\n",
+              "       [0., 0., 0., 0.],\n",
+              "       [0., 0., 0., 0.],\n",
+              "       [0., 0., 0., 0.],\n",
+              "       [0., 0., 0., 0.],\n",
+              "       [0., 0., 0., 0.],\n",
+              "       [0., 0., 0., 0.],\n",
+              "       [0., 0., 0., 0.],\n",
+              "       [0., 0., 0., 0.]])"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 37
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "RlBrA_GtgwG5",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "source": [
+        "def apply_q_learning_exploration(environment: lake_environment, alpha: float = 0.1):\n",
+        "    \"\"\"\n",
+        "    Solve lake_environment by applying Q learning and exploration.\n",
+        "    \"\"\"\n",
+        "    for i in range(1, 10001):\n",
+        "        # your code goes here\n",
+        "        # Throw a random uniform number between 0 and 1\n",
+        "        # If the number is smaller than 0.1, sample a random action.\n",
+        "        # Choose your action as usual.\n",
+        "        state = environment.reset()\n",
+        "        done = False\n",
+        "        while not done:\n",
+        "            num = np.random.uniform(0,1)\n",
+        "            if num < alpha:\n",
+        "              action = lake_environment.action_space.sample()\n",
+        "            else:\n",
+        "              action = np.argmax(q_table[state]) \n",
+        "            next_state, reward, done, info = environment.step(action) \n",
+        "            old_value = q_table[state, action]\n",
+        "            next_max = np.max(q_table[next_state])\n",
+        "            new_value = (1 - alpha) * old_value + alpha * (reward + next_max)\n",
+        "            q_table[state, action] = new_value\n",
+        "\n",
+        "            state = next_state\n",
+        "        \n",
+        "        if i % 100 == 0:\n",
+        "            clear_output(wait=True)\n",
+        "            print(f\"Episode: {i}\")\n",
+        "            print(q_table)   \n",
+        "    print(\"Training finished.\\n\")"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "t-S7pG8JgwG6",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 381
+        },
+        "outputId": "9fa59f14-255d-4dd2-aa1c-1d0a0cf4fd0a"
+      },
+      "source": [
+        "%%time\n",
+        "from IPython.display import clear_output\n",
+        "# train your agent\n",
+        "alpha = 0.1\n",
+        "apply_q_learning_exploration(lake_environment, alpha)"
+      ],
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "Episode: 10000\n",
+            "[[0.80964965 0.80069344 0.77511429 0.77065433]\n",
+            " [0.28909485 0.40353548 0.27691209 0.71125977]\n",
+            " [0.5952665  0.42647124 0.36893971 0.48067463]\n",
+            " [0.20279542 0.13944328 0.09065196 0.12117326]\n",
+            " [0.80536911 0.41886535 0.6516323  0.56525706]\n",
+            " [0.         0.         0.         0.        ]\n",
+            " [0.35503526 0.14965354 0.47671652 0.09986664]\n",
+            " [0.         0.         0.         0.        ]\n",
+            " [0.38074121 0.52300463 0.53393098 0.79179344]\n",
+            " [0.64722591 0.7710527  0.49718638 0.32670036]\n",
+            " [0.76921218 0.54547851 0.47642803 0.45433065]\n",
+            " [0.         0.         0.         0.        ]\n",
+            " [0.         0.         0.         0.        ]\n",
+            " [0.64654829 0.67247286 0.86679814 0.41055144]\n",
+            " [0.8300794  0.94308296 0.90617682 0.90236879]\n",
+            " [0.         0.         0.         0.        ]]\n",
+            "Training finished.\n",
+            "\n",
+            "CPU times: user 10.8 s, sys: 2.01 s, total: 12.8 s\n",
+            "Wall time: 10.7 s\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "NxHgP-jrgwG7",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 69
+        },
+        "outputId": "a26aacd0-d679-4c57-d1a5-5749272fa516"
+      },
+      "source": [
+        "total_epochs, total_dives = 0, 0\n",
+        "episodes = 10000\n",
+        "\n",
+        "captured_frames = [[] for _ in range(episodes)]\n",
+        "\n",
+        "for episode in range(episodes):\n",
+        "    # test your method\n",
+        "    state = lake_environment.reset()\n",
+        "    epochs, penalties, reward = 0, 0, 0\n",
+        "    \n",
+        "    done = False\n",
+        "    \n",
+        "    while not done:\n",
+        "        action = np.argmax(q_table[state])\n",
+        "        state, reward, done, info = lake_environment.step(action)\n",
+        "\n",
+        "\n",
+        "        epochs += 1\n",
+        "        \n",
+        "        # Save rendering of current state.\n",
+        "        captured_frames[episode].append({\n",
+        "            r'frame': lake_environment.render(mode=r'ansi'),\n",
+        "            r'state': state,\n",
+        "            r'action': action,\n",
+        "            r'reward': reward\n",
+        "        })\n",
+        "    if reward==0:\n",
+        "      total_dives += 1\n",
+        "    total_epochs += epochs\n",
+        "\n",
+        "\n",
+        "print(f\"Results after {episodes} episodes:\")\n",
+        "print(f\"Average timesteps per episode: {total_epochs / episodes}\")\n",
+        "print(f\"Average dives per episode: {total_dives / episodes}\")"
+      ],
+      "execution_count": 44,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "Results after 10000 episodes:\n",
+            "Average timesteps per episode: 43.9971\n",
+            "Average dives per episode: 0.2142\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "MLgeH9PSgwG9",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 190
+        },
+        "outputId": "6c697e6c-d108-44d2-d9ae-fd4d085e7bb2"
+      },
+      "source": [
+        "u9.animate_environment_search(frames=captured_frames[4], verbose=True, delay=0.1)"
+      ],
+      "execution_count": 43,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "  (Down)\n",
+            "SFFF\n",
+            "FHFH\n",
+            "FFFH\n",
+            "HFF\u001b[41mG\u001b[0m\n",
+            "\n",
+            "Step No.: 33\n",
+            "State ID: 15\n",
+            "Action ID: 1\n",
+            "Reward: 1.0\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    }
+  ]
+}
